@@ -8,7 +8,7 @@ import * as Plugin from "./quartz/plugins"
  */
 const config: QuartzConfig = {
   configuration: {
-    pageTitle: "Minhyuk Hong",
+    pageTitle: "Zettelkasten",
     pageTitleSuffix: "",
     enableSPA: true,
     enablePopovers: true,
@@ -16,7 +16,7 @@ const config: QuartzConfig = {
       provider: "google",
       tagId: "G-SBDH86582R",
     },
-    locale: "ko-KR",
+    locale: "en-US",
     baseUrl: "https://minhyukhong.pages.dev/",
     ignorePatterns: ["private", "templates", ".obsidian"],
     defaultDateType: "created",
