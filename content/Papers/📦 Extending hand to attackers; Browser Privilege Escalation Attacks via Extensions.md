@@ -42,7 +42,7 @@
 	- PoLP 적용 방식
 		- ==Content Script== -> 낮은 권한, 웹페이지와 상호작용
 		- ==Extension Page== -> 높은 권한, 브라우저 API 접근 가능
-		- 두 컴포넌트 가 ㄴ메시지 교환을 통해 작업을 수행한다.
+		- 두 컴포넌트 간 메시지 교환을 통해 작업을 수행한다.
 - PoLP 적용 실패로 인한 보안 취약점
 	- PoLP 적용이 불완전하여 extension이 주요 공격 경로로 악용 가능하다.
 	- 주요 보안 요구 사항
@@ -322,5 +322,90 @@ readMemory();
 	- Phantom, TronLink, Kaikas에서는 공격자가 요청을 위조하여 복구용 니모닉 및 개인 키 탈취를 가능하게 한다.
 
 ![Figure 4](../assets/images/ExtendingHandToAttackers_4.png)
+
+---
+## 5. Design of FISTBUMP
+<br><br>
+- 현재 익스텐션 아키텍처는 렌더러 공격자(AttackerRW, AttackerR)에 의해 Content Script가 공격당한 가능성이 있다.
+- 기존 아키텍처는 확장 페이지와 Content Script 간의 권한을 올바르게 분리하는 것이 어렵고, 보안 요구 사항이 자주 위반되어 권한 상승 공격이 발생한다.
+- FISTBUMP는 Content Script를 강력한 프로세스 격리를 통해 보호하는 새로운 익스텐션 아키텍처이다.
+<br>
+- **FISTBUMP의 핵심 원리**
+	1. Content Script를 렌더러 프로세스에서 제거하여 확장 프로세스에서 실행한다.
+	2. Content Script 실행 프로세스를 보호 영역(protection domain)으로 활용하여 공격자가 Content Script 권한 탈취가 불가능하도록 한다.
+		- 공격자가 확장 메시지를 위조하거나, 확장 저장소를 접근하는 것이 원천적으로 차단된다.
+	3. 설계 자체에서 보안 요구 사항을 충족하여 취약점을 제거한다.
+	4. 보안 유지 책임을 확장 개발자가 아닌 브라우저와 OS가 담당하도록 전환한다.
+<br>
+**Design Overview**
+1. Content Script의 강력한 프로세스 격리 적용
+2. DOMProxy를 활용한 기능 및 호환성 유지
+3. DOMProxy 성능 최적화
+<br><br>
+**5.1 Strong Process Isolation for Content Script**
+<br>
+**<설계 목표 1>**
+Content Script를 렌더러 프로세스로부터 강력하게 격리
+- 기존 익스텐션 아키텍처에서는 Content Script가 렌더러 프로세스에서 실행되어, AttackerRW 및 AttackerR이 Content Script를 직접 조작 가능하다.
+- FISTBUMP는 Content Script를 확장 프로세스로 이동하여 프로세스 격리를 강화한다.
+	- 확장 페이지가 실행되는 프로세스에서 Content Script를 전용 워커(worker) 스레드로 실행한다.
+	- Content Script는 여전히 제한된 권한을 가지며, 실행 환경(Isolated World)에서 보호된다.
+	- CSP(Content Security Policy)를 적용하여 원격 코드 실행을 방지한다.
+- 보안 효과
+	- Content Script가 더 이상 렌더러 프로세스에 존재하지 않으므로 AttackerR 및 AttackerRW가 Content Script를 조작할 수 없다.
+	- 렌더러 프로세스는 Content Script의 확장 메시지 전송 및 저장소 접근 권한을 잃어, PoLP를 준수하게 된다.
+<br><br>
+**5.2 Transparent Isolation with DOM Proxy**
+<br>
+**<설계 목표 2>**
+기존 익스텐션과의 호환성을 유지하면서 투명한 격리 제공
+- 격리를 강화하면 기존 아키텍처가 변경될 가능성이 높아, FISTBUMP는 최소한의 변경으로 호환성을 유지한다.
+- 문제점
+	- 기존 브라우저 아키텍처에서는 Content Script, DOM, 페이지 스크립트가 같은 렌더러 프로세스에서 실행되어 직접 DOM 접근이 가능하다.
+	- 그러나 FISTBUMP에서는 Content Script가 확장 프로세스로 이동하여 렌더러 프로세스의 DOM에 직접 접근이 불가하다.
+- 해결책: DOMProxy 도입
+	- Content Script가 직접 DOM에 접근하는 대신, DOMProxy가 요청을 중계한다.
+	- IPC(Message Passing)를 통해 Content Script 워커와 DOMProxy가 DOM 연산을 주고받는다.
+	- Content Script가 DOM 객체를 참조할 경우:
+		1. DOMProxy가 참조 객체를 생성하고 ID를 반환한다.
+		2. Content Script 워커는 해당 ID를 이용해 가상 객체(Delegate Object)를 생성한다.
+        3. 모든 DOM 연산은 DOMProxy를 통해 수행된다.
+    - DOM 이벤트 리스너 등록도 프록시 방식으로 구현
+        1. Content Script에서 이벤트 리스너를 등록하면, DOMProxy가 대응하는 이벤트 리스너를 렌더러 프로세스에 등록한다.
+        2. 이벤트가 발생하면 DOMProxy가 콘텐츠 스크립트 워커로 전달한다.
+        3. Content Script 워커가 이벤트를 클론하여 최종적으로 전달한다.
+
+👉🏻 ***실제 예제: `alert(document.domain)` 실행 과정****
+
+1. Content Script가 `alert` 호출 → GET("alert") 요청을 DOMProxy로 전달한다.
+2. DOMProxy가 `alert` 함수에 대한 참조(REFalert)를 생성하여 반환한다.
+3. Content Script가 `document` 객체 접근 → GET("document") 요청 전달 → REFdocument 반환한다.
+4. Content Script가 `document.domain` 접근 → GET(REFdocument, "domain") 요청을 전달한다.
+5. DOMProxy가 `document.domain` 값을 읽어 `example.com`을 반환한다.
+6. Content Script가 `alert("example.com")` 실행 요청 전달 → DOMProxy가 최종 실행한다.
+
+**확장 API 호출 최적화**
+
+- 기존 브라우저 아키텍처에서는 확장 API 호출 시 IPC를 사용 → 프로세스 간 메시지 전달이 필요하다.
+- FISTBUMP는 Content Script와 확장 페이지가 같은 프로세스에서 실행 → IPC가 필요 없다.
+- Content Script에서 API를 호출하면, Content Script 워커가 직접 확장 페이지로 전달 → 성능을 향상한다.
+<br><br>
+**5.3 Optimizing Performance of DOM Proxy**
+<br>
+**<설계 목표 3>**
+격리를 유지하면서 성능 오버헤드를 최소화
+- DOMProxy는 모든 DOM 접근을 중계하기 때문에, 성능 저하가 발생할 가능성이 있다.
+- FISTBUMP는 메모리 관리, 배치 처리, 캐시를 활용하여 성능을 최적화한다.
+
+1. 메모리 관리 (Memory Management)
+- 문제점: DOMProxy가 생성한 참조 객체가 Content Script에서 더 이상 사용되지 않더라도, 남아 있을 경우 Memory leak 발생이 가능하다.
+- 해결책: Content Script 워커에서 delegate 객체가 가비지 컬렉션(GC)되면, DOMProxy에서도 참조 객체를 자동 삭제한다.
+
+2. 배치 처리 및 캐시 (Batch Processing and Cache)
+- 문제점: 각 DOM 연산마다 개별 IPC 요청이 발생하면 성능이 저하된다.
+- 해결책
+    - 작용이 없는 DOM 연산들을 큐에 저장하고 배치 처리(batch processing)하여 IPC 호출 횟수를 줄인다.
+    - 가상 DOM을 유지하여 독립적인 DOM 조작은 콘텐츠 스크립트 내에서 수행한다.
+    - 불변(immutable) 속성 또는 검증이 쉬운 속성을 캐싱하여 성능을 최적화한다.
 
 ---
