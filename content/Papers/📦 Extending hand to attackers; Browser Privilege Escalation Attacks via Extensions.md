@@ -1,5 +1,4 @@
 
-
 ## Abstract
 
 - 브라우저와 공격 타겟
@@ -75,10 +74,10 @@
 
 ---
 ## 2. Background
-
+<br>
 
 **2.1 Web Browser Security**
-
+<br>
 **브라우저의 PoLP 적용 및 multi-process architecture**
 - 최신 브라우저는 PoLP를 준수하여 여러 개의 프로세스로 분리된다.
 - Multi-process architecture
@@ -104,10 +103,10 @@
 - 보안 효과
 	- AttackerRW 및 AttackerR의 공격 범위를 제한하여 SOP 위반 및 UXSS 공격을 차단한다.
 	- 2022년 기준, Chrome에서 UXSS 취약점 0건, 샌드박스 우회 취약점 8건(이 중 4건은 악성 익스텐션 필요).
-
+<br>
 
 **2.2 Browser Extension Architecture**
-
+<br>
 **확장 프로그램 개요**
 - 익스텐션은 사용자가 설치하여 기능을 확장하는 서드파티 프로그램이다.
 - 주요 API
@@ -122,6 +121,8 @@
 - 익스텐션의 구성 요소 분리
 	1. Extension Page: 독립된 프로세스에서 실행, 브라우저 API 접근 가능.
 	2. 저권한 Content Script: 렌더러 프로세스에 주입되어 웹페이지와 직접 상호작용.
+
+![Figure 1](../assets/images/ExtendingHandToAttackers_1.png)
 
 **Extensions Pages**
 - 브라우저 API에 접근 가능하며, 모든 출처(Origin)로 `HTTP request` 가 가능하다(단, 사전에 권한을 선언).
@@ -159,3 +160,6 @@
 	- 콘텐츠 스크립트(C)가 관리 페이지에 삽입하여 저장된 자격 증명을 요청한다.
 	- 확장 페이지(E)가 요청을 받아 브라우저 프로세스에서 데이터를 가져온다.
 	- 데이터를 콘텐츠 스크립트(C)에 전달하여 화면에 표시한다.
+
+![Figure 1](../assets/images/ExtendingHandToAttackers_2.png)
+![Figure 1](../assets/images/ExtendingHandToAttackers_3.png)
