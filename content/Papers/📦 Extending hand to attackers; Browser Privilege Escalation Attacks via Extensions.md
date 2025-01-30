@@ -74,8 +74,7 @@
 
 ---
 ## 2. Background
-<br>
-
+<br><br>
 **2.1 Web Browser Security**
 <br>
 **브라우저의 PoLP 적용 및 multi-process architecture**
@@ -103,7 +102,7 @@
 - 보안 효과
 	- AttackerRW 및 AttackerR의 공격 범위를 제한하여 SOP 위반 및 UXSS 공격을 차단한다.
 	- 2022년 기준, Chrome에서 UXSS 취약점 0건, 샌드박스 우회 취약점 8건(이 중 4건은 악성 익스텐션 필요).
-<br>
+<br><br>
 
 **2.2 Browser Extension Architecture**
 <br>
@@ -161,5 +160,167 @@
 	- 확장 페이지(E)가 요청을 받아 브라우저 프로세스에서 데이터를 가져온다.
 	- 데이터를 콘텐츠 스크립트(C)에 전달하여 화면에 표시한다.
 
-![Figure 1](../assets/images/ExtendingHandToAttackers_2.png)
-![Figure 1](../assets/images/ExtendingHandToAttackers_3.png)
+![Figure 2](../assets/images/ExtendingHandToAttackers_2.png)
+![Figure 3](../assets/images/ExtendingHandToAttackers_3.png)
+
+---
+## 3. Security Requirements to Protect Against Renderer Attackers
+<br>
+
+- 렌더링 엔진의 복잡성 증가로 취약점이 증가하며, 브라우저는 사이트 격리 등의 방어 기법을 도입하여 렌더러 공격자의 권한을 제한한다.
+- 그 결과, *익스텐션의 보안이 주요 방어선이 되었다.*
+- PoLP 원칙에 따르면, Content Script는 낮은 권한을 가지므로 침해되더라도 추가적인 권한을 얻을 수 없어서 한다.
+- 하지만, 확장 프로그램 개발자가 특정 보안 요구 사항을 지키지 않으면 PoLP가 무력화되어 권한 상승 공격이 발생한다.
+- 많은 확장 프로그램 개발자가 보안 전문가가 아니며, 보안 요구 사항을 준수할 동기가 부족하다.
+<br><br>
+
+**3.1 Extension Message Authentication**
+<br>
+- 공격 방식
+	- Content Script는 확장 페이지(고권한 컴포넌트)로 메시지를 보내 특정 작업을 요청할 수 있다.
+	- *AttackerRW(메모리 읽기/쓰기 가능 공격자)* 는 IPC 메시지를 위조하여 권한 상승이 가능하다.
+- ==**보안 요구 사항 1**==: 확장 페이지는 Content Script가 합법적인 발신자인지 인증해야 한다.
+- 보안 취약점 사례
+	1. 개발자가 AttackerRW 모델을 고려하지 않아 발신자를 인증하지 않는다.
+	2. 잘못된 인증 방식을 사용한다.
+		- URL 기반 인증 오류: `about:blank`, `data:`, `blob:` 등의 특수 URL을 적절히 처리하지 못한다.
+		- TOCTOU(시간 확인-사용 시점 경쟁 조건) 공격(e.g. A 사이트에서 실행 요청 -> 실행 직전 B 사이트로 변경 -> B에서 실행)
+		- 보안 강화 기능 부족: `isTrusted` 같은 인증 기능이 제공되지 않는다.
+
+```
+// Vulnerable extension's background page
+chrome.runtime.onMessage.addListener((message, sender, send) => {
+	// Improperly authenticates the URL
+	if (sender.url.startsWith("https://admin.com")
+		&& message == "getCredentials")
+		sendResponse(credentials);
+7 });
+// AttackerRW on https://admin.com.attacker.com
+chrome.runtime.sendMessage("getCredentials")	
+```
+**Listing 1**: 보안 취약점이 있는 코드 패턴과 이를 악용할 수 있는 PoC 공격 예제.
+
+- 실제 공격 예시 (비밀번호 관리자 확장 프로그램)
+	- 공격자가 `https://admin.com.attacker.com` 도메인을 등록하여 관리 페이지처럼 위장하고 인증 우회 후 비밀번호를 탈취한다.
+<br><br>
+
+**3.2 Non-sensitive Data in Extension Storage**
+<br>
+- 공격 방식
+	- Content Script가 실행되는 렌더러 프로세스는 Extension Storage에 접근 가능하다.
+	- AttackerRW가 침해한 경우 저장소의 데이터를 읽거나 수정 가능하다.
+- ==**보안 요구 사항 2**==: 익스텐션 저장소에는 보안이 중요한 데이터(password, 개인 정보, 크로스 사이트 데이터, etc)를 저장해서는 안 된다.
+- 보안 취약점 사례: 많은 개발자들이 익스텐션 저장소가 안전하다고 착각하여 민감한 데이터를 저장한다.
+
+```
+// Vulnerable extensions's backgorund page
+// Stores credentials on the extension storage
+chrome.storage.set("credentials", credentials);
+
+// AttackerRW on any page
+chrome.storage.get("credentials")
+```
+**Listing 2**: 보안 취약점이 있는 코드 패턴과 이를 악용할 수 있는 PoC 공격 예제.
+
+- 실제 공격 예시 (비밀번호 관리자 익스텐션)
+	- 익스텐션 저장소에 자격 증명 저장 -> AttackerRW가 저장된 비밀번호를 불법적으로 읽어온다.
+<br>
+**3.3 Non-sensitive Data in Content Script**
+<br>
+- 공격 방식
+	- Content Script는 렌더러 프로세스에서 실행되므로 AttackerR(메모리 읽기 공격자) 및 AttackerRW가 읽을 수 없다.
+	- 특히 AttackerR은 브라우저 취약점 없이도 CPU 사이드 채널 공격(Meltdown, Spectre)으로 데이터에 접근한다.
+	- 고해상도 타이머(high-granularity timer)를 활용한 공격이 가능하므로 Chrome 및 Firefox는 이를 제한했으나, Content Script 주입에는 영향을 주지 않았다.
+- ==**보안 요구 사항 3**==: Content Script에는 보안이 중요한 데이터(password, 개인 정보, etc)를 로드해서는 안 된다.
+
+```
+// Vulnerable extension's background page
+// Send sensitive data to the content script
+chrome.tabs.sendMessage(tabId, sensitiveData);
+
+// The message is enqueued in the renderer process's message queue,
+// so AttackerR can read the message
+readMemory();
+```
+**Listing 3**: 보안 취약점이 있는 코드 패턴과 이를 악용할 수 있는 PoC 공격 예제.
+
+- 보안 취약점 사례: 개발자들은 Content Script 내부 데이터가 외부에 노출되지 않는다고 착각하고 민감한 데이터를 저장한다.
+- 실제 공격 예시
+	- Background Page에서 Content Script로 민감한 데이터 전송 -> AttackerR이 메모리에서 해당 데이터를 읽는다.
+
+---
+## 4. Privilege Escalation Attacks via Extensions
+<br>
+- 익스텐션의 보안 요구 사항을 검토한 결과, 많은 익스텐션이 이를 준수하지 않아 권한 상승 공격을 가능하게 한다.
+- 3가지 주요 공격 기법을 개발하여 동일 출처 정책(SOP)을 우회하고, 다른 사이트에서 스크립트를 실행하는 UXSS 공격 수행이 가능하다.
+- UXSS 공격을 통해 공격자는 피해자의 이메일을 읽거나, 은행 이체 등 피해자를 대신하여 조작한다.
+<br><br>
+**4.1 Execute Privileged Browser APIs**
+<br>
+- 브라우저 API는 다른 사이트의 데이터를 읽거나 브라우저 동작을 변경할 수 있으므로, 이를 호출하는 확장 메시지는 인증이 필요하다(==보안 요구 사항 1==).
+- 그러나 23개의 익스텐션이 이 요구 사항을 지키지 않아 공격자가 고권한 API를 무제한 실행 가능하다.
+<br>
+👉🏻 ***Case Studies***
+1. **Honey**
+	- `executeScript` API에 대한 제한이 없어, 임의의 Javascript를 탭에서 실행하게 하여 UXSS 공격이 가능하다.
+	- 모든 탭 이벤트를 Content Script로 브로드캐스트하여 탭 정보가 노출된다.
+2. **Tampermonkey**
+	- `fetch`, `tabs`, `cookies` API를 자유롭게 호출 가능하여 SOP 우회 및 크로스 사이트 데이터 읽기가 가능하다.
+3. **ClassLink OneClick Extension**
+	- `executeScript` API가 탭 ID를 기반으로 실행되므로, 페이지 이동 후에도 동일한 ID를 유지한다.
+	- 공격자가 페이지 언로드(unload) 이벤트를 이용하여 다른 사이트에서 스크립트 실행이 가능하여 UXSS가 발생한다.
+4. **Opera Component Extensions**
+	- `settingsPrivate` API가 Content Script에서 접근 가능하여 브라우저 설정을 변경할 수 있다.
+	- DNS/Proxy 설정 변경을 통한 MITM 공격이 가능하다.
+	- 샌드박스 탈출 또는 UXSS 공격을 수행한다.
+<br><br>
+**4.2 Write Sensitive Extension Data**
+<br>
+- Extension Page는 Content Script보다 높은 권한을 가지므로, 페이지의 설정을 Content Script에서 변경할 수 없어야 한다.
+- 그러나 많은 익스텐션이 이를 허용하여 공격자가 확장 기능을 악용할 수 있게 한다.
+- 특히, 익스텐션이 주입하는 스크립트의 설정을 변경할 경우 UXSS 공격이 가능하다.
+<br>
+👉🏻 ***Case Studies***
+1. **Ad Blockers** (광고 차단기 익스텐션)
+	- 사용자가 필터 규칙을 추가할 수 있으며, 일부 규칙은 사이트에 스크립트를 삽입하여 광고를 제거한다.
+	- e.g. `example.com#$#alert(document.domain)`->`example.com` 에서 `alert(document.domain` 실행.
+	- 공격자가 사용자 요청을 위조하여 악성 필터를 추가하면, 임의 코드를 실행할 수 있다.
+	- 6개의 광고 차단 익스텐션이 이러한 설정을 Extension Storage에 저장하여 공격자가 변경 가능하다.
+2. **Tampermonkey**
+	- 사용자가 특정 페이지에서 실행할 Userscript를 추가할 수 있다.
+	- 공격자가 요청을 위조하여 악성 Userscript를 추가하면, 원하는 웹사이트에서 악성 코드 실행이 가능하다.
+	- Tampermonkey는 Userscript를 Extension Storage에 저장하여, 공격자가 직접 수정할 수 있게 한다.
+	- Userscript가 확장 API를 호출할 수도 잇어, 공격자가 API 요청을 위조할 수 있게 한다.
+3. **Google Translate**
+	- 페이지 번역을 위해 페이지에 스크립트를 삽입한다.
+	- 사용자는 번역할 언어를 선택 가능하며, 이 설정이 Extension Storage에 저장된다.
+	- 공격자가 설정값을 스크립트 코드로 변경하면, 번역된 페이지에서 XSS가 발생할 수 있다.
+<br><br>
+**4.3 Read Sensitive Extension Data**
+<br>
+- 익스텐션이 민감한 데이터를 안전하게 저장하고 접근을 제한해야 한다.
+- 그러나 19개의 익스텐션이 보안 요구 사항을 충족하지 않아 공격자가 민감한 데이터를 훔칠 수 있다.
+<br>
+👉🏻 ***Case Studies***
+1. **Windows Account and Office**
+	- Windows 및 Azure Active Directory(AAD) 계정 로그인을 지원한다.
+	- 로그인 시 Content Script가 OS에서 토큰을 가져오도록 요청한다.
+	- 공격자가 로그인 페이지 URL을 위조하면, 계정을 탈취할 수 있다.
+2. **Password Managers** (비밀번호 관리자)
+	- 저장된 웹사이트 로그인 정보를 제공한다.
+	- 로그인 페이지 방문 시, Content Script가 Extension Page에 저장된 비밀번호를 요청한다.
+	- LastPass 및 Bitwarden에서는 공격자가 사이트 URL을 위조하여 해당 사이트의 비밀번호 탈취가 가능하다.
+	- 6개의 비밀번호 관리자를 추가 분석한 결과, 모든 익스텐션에서 비밀번호 탈취 가능하다.
+	- 4개의 익스텐션은 암호화 키도 Extensions Storage에 저장하여 공격자가 접근 가능하다.
+3. **Cryptocurrency Wallets** (암호화폐 지갑)
+	- 트랜잭션 서명을 위한 private key를 저장한다.
+	- 사용자가 트랜잭션 서명을 요청하면, Content Script가 요청을 Background page로 전달한다.
+	- Background page가 사용자에게 확인 요청 후, 트랜잭션을 서명하여 반환한다.
+	- MetaMask에서는 공격자가 서명 확인 메시지를 위조하여 악성 트랜잭션을 승인 가능하게 한다.
+	- MetaMask는 트랜잭션 큐를 Extension Storage에 저장하여, 공격자가 임의의 트랜잭션 추가를 가능하게 한다.
+	- 추가 분석 결과, 7개의 암호화폐 지갑 중 4개에서 공격자가 임의의 트랜잭션 서명을 가능하게 한다.
+	- Phantom, TronLink, Kaikas에서는 공격자가 요청을 위조하여 복구용 니모닉 및 개인 키 탈취를 가능하게 한다.
+
+![Figure 4](../assets/images/ExtendingHandToAttackers_4.png)
+
+---
