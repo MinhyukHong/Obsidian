@@ -363,6 +363,9 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 - 문제점
 	- 기존 브라우저 아키텍처에서는 Content Script, DOM, 페이지 스크립트가 같은 렌더러 프로세스에서 실행되어 직접 DOM 접근이 가능하다.
 	- 그러나 FISTBUMP에서는 Content Script가 확장 프로세스로 이동하여 렌더러 프로세스의 DOM에 직접 접근이 불가하다.
+
+![Figure 5](../assets/images/ExtendingHandToAttackers_5.png)
+
 - 해결책: DOMProxy 도입
 	- Content Script가 직접 DOM에 접근하는 대신, DOMProxy가 요청을 중계한다.
 	- IPC(Message Passing)를 통해 Content Script 워커와 DOMProxy가 DOM 연산을 주고받는다.
@@ -409,3 +412,24 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
     - 불변(immutable) 속성 또는 검증이 쉬운 속성을 캐싱하여 성능을 최적화한다.
 
 ---
+## 6. Implementation
+<br><br>
+**개발 환경 및 구성 요소**
+- FISTBUMP는 Chromium 105 기반으로 구현되었다.
+- 두 가지 주요 구성 요소로 이루어졌다.
+	1. Extension Wrapper -> Javascript (3,000+ LoC)
+		- 확장 API를 기반으로 구현했다.
+		- DOMProxy는 Content Script로 구현했다.
+		- Content Script 워커는 Background Page에서 실행한다.
+		- 확장 메시징을 통해 서로 통신한다.
+	2. Chromium 브라우저 수정 (Browser-Side Modification) -> C++ (100 LoC)
+		- 브라우저 수준에서 소규모 변경을 적용한다.
+
+**호환성 및 확장 가능성**
+- 표준 Web API 및 JavaScript(ECMAScript) 기능을 사용하여 구현되어, 최신 Firefox 및 Safari에서도 호환이 가능하다.
+- 기존 익스텐션에 쉽게 적용 가능하다 (단, `document_start` 을 사용하는 Content Script는 브라우저 측 수정 필요).
+- 브라우저 측 변경이 적으므로, 다른 브라우저에서도 유사한 방식으로 적용 가능하다.
+
+---
+## 7. Evaluation
+
