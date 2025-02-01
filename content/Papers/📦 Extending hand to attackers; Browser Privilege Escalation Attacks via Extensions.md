@@ -400,7 +400,7 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
         3. Content Script 워커가 이벤트를 클론하여 최종적으로 전달한다.
 
 
-👉🏻 ***실제 예제: `alert(document.domain)` 실행 과정****
+👉🏻 ***실제 예제: `alert(document.domain)` 실행 과정***
 
 1. Content Script가 `alert` 호출 → GET("alert") 요청을 DOMProxy로 전달한다.
 2. DOMProxy가 `alert` 함수에 대한 참조(REFalert)를 생성하여 반환한다.
