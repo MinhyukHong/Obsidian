@@ -10,7 +10,7 @@ export const sharedPageComponents: SharedLayout = {
   footer: Component.Footer({
     links: {
       GitHub: "https://github.com/MinhyukHong",
-      "Tistory": "https://prospero-mivida.tistory.com/",
+      // "Tistory": "https://prospero-mivida.tistory.com/",
     },
   }),
 }
