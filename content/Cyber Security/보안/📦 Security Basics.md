@@ -6,7 +6,7 @@
 > 공격자들(Attackers)은 제로 데이 취약점을 악용하여 원격 코드 실행을 통해 Exchange 서버를 장악했다.  
 > 결과: 피해를 입은 기업, 정부, 교육 기관 등에서 계정이 침해되고 데이터 유출이 발생했다.
 > 
-> ![Figure 1](../assets/images/SecurityBasics_1.png)
+> ![Figure 1](SecurityBasics_1.png)
 
 > [!note] Case 2.
 > • Colonial Pipeline **Ransomware** (May, 2021) by DarkSide  
@@ -14,7 +14,7 @@
 > ~80%의 주유소는 연료가 바닥났다(Federal Emergency).  
 > 결과: $4.4M의 비트코인을 공격자들에게 지불하고 종결.
 >
-> ![Figure 2](../assets/images/SecurityBasics_2.png)
+> ![Figure 2](SecurityBasics_2.png)
 >
 > ☑️ **ransomeware**: 파일이나 시스템을 lock. 특정한 암호를 입력하지 않고는 파일을 열지 못하거나 시스템을 사용하지 못하게 하는 악성코드의 일종.
 
@@ -25,7 +25,7 @@
 > 오리온의 업데이트/배포 루틴에 공격자들이 침입하여 다음 번 업데이트에 악성코드를 넣음으로써 오리온을 사용하는 모든 기업의 프로그램에 업데이트를 적용시켰다.  
 > Software Supply Chain 공격: 소프트웨어가 공급되는 공급망 어딘가에 공격을 받는다면, 그것을 사용하는 모든 entity들이 동시에 영향을 받는 공격 기법.
 >
-> ![Figure 3](../assets/images/SecurityBasics_3.png)
+> ![Figure 3](SecurityBasics_3.png)
 >
 > ☑️  **Advanced Persistent Threat**: 장기적으로 특정 타겟을 공격하는 집단
 
@@ -33,7 +33,7 @@
 ## Security Really Matters
 
 - 사이버 보안 문제로 급증한 재정적 손실
-![Figure 4](../assets/images/SecurityBasics_4.png)
+![Figure 4](SecurityBasics_4.png)
 
 위와 같은 미국 내에서의 피해 뿐만 아니라, 91% 이상의 조직/기업이 한 번 이상 사이버 보안 사고나 데이터 유출을 보고했다.
 
@@ -41,7 +41,7 @@
 ## CIA Triads
 
 - 우리가 사이버 보안을 통해 보호하고자 하는 것에 대한 3가지 개념
-![Figure 5](../assets/images/SecurityBasics_5.png)
+![Figure 5](SecurityBasics_5.png)
 
 - **CIA**: Confidentiality(기밀성), Integrity(무결성; 데이터가 왜곡되지 않음), Availability(가용성)
 - CIAAAAA: Authenticity, Anonymity, Authorization, Auditing

@@ -73,19 +73,19 @@
 
 **Static Analysis - Example(strcpy)**
 - unsafe function인 `strcpy`를 사용했기 때문에 IDE를 통해 정적 분석된 에러 메시지이다.
- ![Figure 1](../assets/images/Security&ForensicsTechniques_1.png)
+ ![Figure 1](Security&ForensicsTechniques_1.png)
 - 왜 `strcpy`가 취약한가?(int = 4byte 라고 가정)
 ```
 char buf[10];
 int x;
 ```
- ![Figure 2](../assets/images/Security&ForensicsTechniques_2.png)
+ ![Figure 2](Security&ForensicsTechniques_2.png)
 ```
 strcpy(buf, "14 characters\0");
 ```
 
 만들어 놓은 10칸의 버퍼에 14칸의 string을 copy하기 때문에 정해진 범위를 넘게 된다.
- ![Figure 3](../assets/images/Security&ForensicsTechniques_3.png)
+ ![Figure 3](Security&ForensicsTechniques_3.png)
 > [!note] 문제점
  > x는 x에 해당하는 데이터를 사용해야 하지만, 버퍼가 침범했다.  
 > "The length of the string is bigger than the size of the buffer." → **Buffer Overflow**(버퍼 오버플로우) 발생  
@@ -95,7 +95,7 @@ strcpy(buf, "14 characters\0");
 ### "왜 문제가 있는 것인가?"
 
 - Memory model for the process
-![Figure 4](../assets/images/Security&ForensicsTechniques_4.png)
+![Figure 4](Security&ForensicsTechniques_4.png)
 
 - HEAP은 동적으로 할당되는 변수들을 저장한다.- e.g., `malloc`, `new`
 - STACK은 함수의 "activation record"를 저장한다.- e.g., local variables, etc.
@@ -105,13 +105,13 @@ int foo(int x){ char buf[10]; strcpy(buf, ....); return x + 12; } int 
 ```
 
 - Activation record for functions
-![Figure 5](../assets/images/Security&ForensicsTechniques_5.png)
+![Figure 5](Security&ForensicsTechniques_5.png)
 
 - `foo()` 함수의 activation record
-![Figure 6](../assets/images/Security&ForensicsTechniques_6.png)
+![Figure 6](Security&ForensicsTechniques_6.png)
 
 만약, `strcpy(buf, "..................1E2B4C5B");`를 한다면, 기존의 return address(돌아가야 하는 주소값)가 다음과 같이 변경되게 된다.
-![Figure 7](../assets/images/Security&ForensicsTechniques_7.png)
+![Figure 7](Security&ForensicsTechniques_7.png)
 
 
 즉, 다음 이미지와 같이 `foo()` 함수가 끝날 경우 `main()`으로 돌아가는 것이 아닌, 공격자가 자신의 Shell이나 Remote Code Execution을 넣어 놓는다면 `main()`과는 상관이 없는 코드가 실행된다.  
@@ -119,7 +119,7 @@ int foo(int x){ char buf[10]; strcpy(buf, ....); return x + 12; } int 
 - e.g. admin에 가까운 권한, 소켓 open
 
 "Buffer Overflow can change the execution flow of the program."
-![Figure 8](../assets/images/Security&ForensicsTechniques_8.png)
+![Figure 8](Security&ForensicsTechniques_8.png)
 
 따라서, Visual Studio에서는 버퍼 오버플로우를 막기 위해 `strcpy`를 정적으로 식별하고 경고한다.
 
@@ -134,7 +134,7 @@ int foo(int x){ char buf[10]; strcpy(buf, ....); return x + 12; } int 
 > - 프로그램 내에서 컨트롤이 진행되는 과정에 대해 분석한다.
 > - Branch를 기준으로 코드 블럭을 나눈 뒤, 나올 수 있는 가능성들을 기준으로 그래프를 통해 표현한다.
 > 
-> ![Figure 9](../assets/images/Security&ForensicsTechniques_9.png)
+> ![Figure 9](Security&ForensicsTechniques_9.png)
 
 > [!note] Data-flow Analysis
 > - 어떠한 데이터가 어디서 시작해서 어디로 들어가는 지(변화하는 과정)를 추적하여 분석하는 기법
@@ -161,7 +161,7 @@ int foo(int x){ char buf[10]; strcpy(buf, ....); return x + 12; } int 
 ### Build Process
 
 - From Codes to Executables
-![Figure 10](../assets/images/Security&ForensicsTechniques_10.png)
+![Figure 10](Security&ForensicsTechniques_10.png)
 
 - 소스코드를 작성하면 컴파일링과 링킹의 세부적인 과정을 거쳐 .exe 파일(실행 파일)이 탄생한다.
 - 하지만 실행 파일만 존재할 경우?(e.g. firmware, malware, etc.)
@@ -174,7 +174,7 @@ int foo(int x){ char buf[10]; strcpy(buf, ....); return x + 12; } int 
 	- Decompiling (machine codes to high-level language)
 	- Disassembly (machine codes to assembly)
 
-![Figure 11](../assets/images/Security&ForensicsTechniques_11.png)
+![Figure 11](Security&ForensicsTechniques_11.png)
 
 
 - Tools: IDA Pro, Ghidra, Radare2, Angr, etc.
@@ -184,7 +184,7 @@ int foo(int x){ char buf[10]; strcpy(buf, ....); return x + 12; } int 
 ### Obfuscation
 
 - 난독화의 예시 (Obfuscated code)
-![Figure 12](../assets/images/Security&ForensicsTechniques_12.png)
+![Figure 12](Security&ForensicsTechniques_12.png)
 
 
 ### Packing
@@ -308,28 +308,28 @@ if y == 10:
 
 ### Fuzzing - Examples
 
-![Figure 13](../assets/images/Security&ForensicsTechniques_13.png)
+![Figure 13](Security&ForensicsTechniques_13.png)
 
-![Figure 14](../assets/images/Security&ForensicsTechniques_14.png)
+![Figure 14](Security&ForensicsTechniques_14.png)
 
 
 ### Fuzzing = Examples (SQL Injection)
 
 1. **Mutation-based(Random) Fuzzing** : 유효한 input을 정해놓고, 그것으로부터 변이를 발생시켜 시스템에 넣는 방식
 
-![Figure 15](../assets/images/Security&ForensicsTechniques_15.png)
+![Figure 15](Security&ForensicsTechniques_15.png)
 
 2. **Generation-based Fuzzing**(생성 기반 Fuzzing) : 일정한 패턴이나 룰을 집어 넣어 그것을 기반을 fuzzing data를 만들어내는 방식
 	- 시스템/보안적으로 좀 더 취약점이 많이 발생하는 부분에 대해 어느 정도 지식을 가지고 룰을 적용시켜 input을 만들어내는 기법
 
-![Figure 16](../assets/images/Security&ForensicsTechniques_16.png)
+![Figure 16](Security&ForensicsTechniques_16.png)
 
 3. **Coverage-guided Fuzzing** : 테스트 케이스를 던져주고, 그것이 작동할 때 거쳐가는 코드의 coverage를 통해 새로운 generation을 만들어가는 방식. 전체 코드에서 여러 번의 fuzzing을 통해서 시스템이 갖고 있는 최대한 많은 코드 부분에 도달(조사)할 수 있게끔 하는 방식.
 	- Code coverage를 측정하기 위해 코드가 있어야 한다.
 	- Whitebox Testing: 시스템의 내부를 전부 알고 있다는 가정 하에 테스팅하는 기법
 	- Blackbox Testing: 시스템의 내부를 전혀 모르는, 코드가 없는 상태에서 테스팅하는 기법
 
-![Figure 17](../assets/images/Security&ForensicsTechniques_17.png)
+![Figure 17](Security&ForensicsTechniques_17.png)
 
 
 ### Fuzzing - pros and cons

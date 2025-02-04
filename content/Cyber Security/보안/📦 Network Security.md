@@ -13,7 +13,7 @@
 - 데이터를 보호하기 위한 기술. Original form(plain text/clear text)을 사람이 읽을 수 없는 ciphertext로 바꾸는 것
 - Encryption algorithm(cipher)을 사용하게 된다. 암호화를 사용하기 위해 사용하는 중요한 값들을 **Key**라 하며 key를 통해 **암호화(encryption)** 와 **복호화(decryption)** 과정을 거치게 된다.
 
-![Figure 1](../assets/images/NetworkSecurity_1.png)
+![Figure 1](NetworkSecurity_1.png)
 
 ---
 ## Symmetric Encryption
@@ -21,7 +21,7 @@
 - 암호화와 복호화 과정에서 **동일한 key**를 사용하는 것이다.
 - 대칭형 암호화의 경우, **shared secret**을 사용한다.
 
-![Figure 2](../assets/images/NetworkSecurity_2.png)
+![Figure 2](NetworkSecurity_2.png)
 
 > [!note] Encryption Algorithms
 > -  Advanced Encryption Standard(AES)
@@ -60,7 +60,7 @@
 
 ### Asymmetric Encryption: Encryption
 
-![Figure 3](../assets/images/NetworkSecurity_3.png)
+![Figure 3](NetworkSecurity_3.png)
 
 - 암호화와 복호화 과정 모두에서 사용되는 key는 기본적으로 **수신자(recipient)의 key**이다.
 
@@ -71,7 +71,7 @@ Bob → Alice: Alice's public and private keys
 
 ### Asymmetric Encryption: Digital Signature
 
-![Figure 4](../assets/images/NetworkSecurity_4.png)
+![Figure 4](NetworkSecurity_4.png)
 
 - 암호화와 복호화 과정 모두에서 사용되는 key는 기본적으로 **송신자(sender)의 key**이다.
 
@@ -84,7 +84,7 @@ Bob → Alice: Bob's public and private keys
 ### Asymmetric Encryption: PKI
 
 - Public Key Infrastructure(PKI)
-![Figure 5](../assets/images/NetworkSecurity_5.png)
+![Figure 5](NetworkSecurity_5.png)
 
 
 ### Symmetric vs. Asymmetric
@@ -148,7 +148,7 @@ Bob → Alice: Bob's public and private keys
 
 ### Network Protocol: OSI 7 layers
 
-![Figure 6](../assets/images/NetworkSecurity_6.png)
+![Figure 6](NetworkSecurity_6.png)
 
 
 ### Network Protocol: Problems
@@ -164,7 +164,7 @@ Bob → Alice: Bob's public and private keys
 - 공격자는 통신하는 두 당사자 간의 데이터를 **관찰**하고 **잠재적으로 변경**할 수 있다.
 - 예를 들어, **login credential**과 **개인 정보**가 암호화되지 않은 HTTP 세션을 통해 노출될 수 있다.
 
-![Figure 7](../assets/images/NetworkSecurity_7.png)
+![Figure 7](NetworkSecurity_7.png)
 
 
 ### Packet Sniffing
@@ -178,14 +178,14 @@ Bob → Alice: Bob's public and private keys
 - DNS 쿼리가 암호화되지 않으면 공격자가 위조된 DNS 응답으로 **사용자를 악성 사이트로 리디렉션**할 수 있다.
 - 이는 **인증 자격 증명 도용(theft of authentication credentials)** 이나 **악성 소프트웨어 배포**로 이어질 수 있다.
 
-![Figure 8](../assets/images/NetworkSecurity_8.png)
+![Figure 8](NetworkSecurity_8.png)
 
 
 ### Session Hijacking
 
 - 공격자는 **암호화되지 않은 쿠키나 세션 토큰을 가로채어 사용자의 세션을 탈취**하고 그들의 권한에 접근한다(공공 와이파이에서).
 
-![Figure 9](../assets/images/NetworkSecurity_9.png)
+![Figure 9](NetworkSecurity_9.png)
 
 ---
 ## Solutions: Encrypted Protocols
@@ -214,12 +214,12 @@ Bob → Alice: Bob's public and private keys
 
 ### Firewall: Example (Packet Filtering)
 
-![Figure 10](../assets/images/NetworkSecurity_10.png)
+![Figure 10](NetworkSecurity_10.png)
 
 
 ### Packet Filtering Firewall (1st gen)
 
-![Figure 11](../assets/images/NetworkSecurity_11.png)
+![Figure 11](NetworkSecurity_11.png)
 
 - 패킷 필터링 방화벽은 **패킷의 헤더 정보를 검사**하고, **소스 주소와 포트**를 확인한 후에 목적지 주소와 포트에 대한 접근을 허용할지 여부를 결정한다.
 - OSI Layers: Layer 3(**Network** Layer), Layer 4(**Transport** Layer)
@@ -230,7 +230,7 @@ Bob → Alice: Bob's public and private keys
 
 ### Statefull Firewall (2nd gen)
 
-![Figure 12](../assets/images/NetworkSecurity_12.png)
+![Figure 12](NetworkSecurity_12.png)
 
 - 패킷 필터링 방화벽은 빠르지만 많은 규칙이 있는 경우 모든 들어오는 패킷과 나가는 패킷을 조사해야 하므로 큰 부담이 될 수 있다.
 - 상태 기반 방화벽은 트래픽의 ==session==을 모니터링한다(타임아웃 포함).
@@ -259,7 +259,7 @@ Bob → Alice: Bob's public and private keys
 - **Proxy**  
 	프록시는 종단 사용자와 그들이 브라우징하는 웹사이트를 분리하는 중간 서버이다.
 
-![Figure 13](../assets/images/NetworkSecurity_13.png)
+![Figure 13](NetworkSecurity_13.png)
 
   
 - **프록시 방화벽**은 네트워크/전송 계층과 응용 프로그램 계층(깊은 검사) 모두를 검사한다.

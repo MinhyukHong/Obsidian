@@ -122,7 +122,7 @@
 	1. Extension Page: 독립된 프로세스에서 실행, 브라우저 API 접근 가능.
 	2. 저권한 Content Script: 렌더러 프로세스에 주입되어 웹페이지와 직접 상호작용.
 
-![Figure 1](../assets/images/ExtendingHandToAttackers_1.png)
+![Figure 1](ExtendingHandToAttackers_1.png)
 
 **Extensions Pages**
 - 브라우저 API에 접근 가능하며, 모든 출처(Origin)로 `HTTP request` 가 가능하다(단, 사전에 권한을 선언).
@@ -161,8 +161,8 @@
 	- 확장 페이지(E)가 요청을 받아 브라우저 프로세스에서 데이터를 가져온다.
 	- 데이터를 콘텐츠 스크립트(C)에 전달하여 화면에 표시한다.
 
-![Figure 2](../assets/images/ExtendingHandToAttackers_2.png)
-![Figure 3](../assets/images/ExtendingHandToAttackers_3.png)
+![Figure 2](ExtendingHandToAttackers_2.png)
+![Figure 3](ExtendingHandToAttackers_3.png)
 
 ---
 ## 3. Security Requirements to Protect Against Renderer Attackers
@@ -338,7 +338,7 @@ readMemory();
 	- 추가 분석 결과, 7개의 암호화폐 지갑 중 4개에서 공격자가 임의의 트랜잭션 서명을 가능하게 한다.
 	- Phantom, TronLink, Kaikas에서는 공격자가 요청을 위조하여 복구용 니모닉 및 개인 키 탈취를 가능하게 한다.
 
-![Figure 4](../assets/images/ExtendingHandToAttackers_4.png)
+![Figure 4](ExtendingHandToAttackers_4.png)
 
 ---
 ## 5. Design of FISTBUMP
@@ -385,7 +385,7 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 	- 기존 브라우저 아키텍처에서는 Content Script, DOM, 페이지 스크립트가 같은 렌더러 프로세스에서 실행되어 직접 DOM 접근이 가능하다.
 	- 그러나 FISTBUMP에서는 Content Script가 확장 프로세스로 이동하여 렌더러 프로세스의 DOM에 직접 접근이 불가하다.
 
-![Figure 5](../assets/images/ExtendingHandToAttackers_5.png)
+![Figure 5](ExtendingHandToAttackers_5.png)
 
 - 해결책: DOMProxy 도입
 	- Content Script가 직접 DOM에 접근하는 대신, DOMProxy가 요청을 중계한다.
@@ -490,7 +490,7 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 - CVE-2022-1134 (Type Confusion RCE) 기반 공격을 실행한다.
 - 기존 브라우저에서는 성공했으나, FISTBUMP 환경에서는 모든 공격이 차단된다. FISTBUMP가 예상대로 보안 요구 사항을 충족하고 공격을 차단했다.
 
-![Figure 6](../assets/images/ExtendingHandToAttackers_6.png)
+![Figure 6](ExtendingHandToAttackers_6.png)
 
 ### 7.2 Backward Compatibility
 

@@ -6,7 +6,7 @@
 
 ### Supply Chain in Software Ecosystem
 
-![Figure 1](../assets/images/SoftwareSupplyChainSecurity_1.png)
+![Figure 1](SoftwareSupplyChainSecurity_1.png)
 
 - Modern software is not built from scrath.
 - 프로그램을 만들 때, 여러 개의 오픈소스 라이브러리와 프레임워크에 의존한다(**dependencies**).
@@ -16,7 +16,7 @@
 
 어떤 취약점이나 악성 코드가 존재할 때, 다음과 같은 복잡한 *dependency(종속성)* 의 구조를 가지고 있기 때문에 내부적으로 상속되는 문제가 발생한다.
 
-![Figure 2](../assets/images/SoftwareSupplyChainSecurity_2.png)
+![Figure 2](SoftwareSupplyChainSecurity_2.png)
 
 
 ### Example: Log4j
@@ -30,7 +30,7 @@
   
 2021년도에 **CVE**(Common Vulnerabilities and Exposures)가 발행되었다.
 
-![Figure 3](../assets/images/SoftwareSupplyChainSecurity_3.png)
+![Figure 3](SoftwareSupplyChainSecurity_3.png)
 
 ① 공격자가 자신의 서버를 만들고, **malware**나 **ransomware**를 올려놓는다.
 ② 해당 서버의 **URL을 포함시킨 쿼리**(http request)를 Log4j를 사용한 서버에 보낸다.
@@ -47,7 +47,7 @@
 
 ### Impacts
 
-![Figure 4](../assets/images/SoftwareSupplyChainSecurity_4.png)
+![Figure 4](SoftwareSupplyChainSecurity_4.png)
 
 - 보안 업체 관측 결과, 시간 당 최소 140만회의 공격 트래픽이 발생했다.
 - CVE 발행 후 4개월이 지난 뒤에 조사한 결과, 여전히 90,000개 이상의 서버가 Log4j가 업데이트 되지 않은 버전을 사용 중이다.
