@@ -20,7 +20,9 @@ export default ((opts?: Options) => {
               background: "transparent !important",
               border: "none !important",
               boxShadow: "none !important",
+              display: "inline-block",
               padding: "0",
+              margin: "0",
             }}
           />
         </a>
