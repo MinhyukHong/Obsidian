@@ -14,7 +14,7 @@ export default ((opts?: Options) => {
         <a href="https://github.com/MinhyukHong">
           <img
             src="/static/github.png"
-            width="90"
+            width="110"
             height="60"
             style={{
               background: "transparent !important",
