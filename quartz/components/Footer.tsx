@@ -14,12 +14,15 @@ export default ((opts?: Options) => {
         <a href="https://github.com/MinhyukHong">
           <img
             src="/static/github.png"
-            width="60"
+            width="90"
             height="60"
             style={{
-              background: "none",
-              border: "none",
-              boxShadow: "none",
+              background: "transparent !important",
+              border: "none !important",
+              boxShadow: "none !important",
+              display: "block",
+              padding: "0",
+              margin: "auto",
             }}
           />
         </a>
