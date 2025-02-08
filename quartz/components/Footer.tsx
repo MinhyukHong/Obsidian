@@ -12,7 +12,16 @@ export default ((opts?: Options) => {
     return (
       <footer class={`${displayClass ?? ""}`}>
         <a href="https://github.com/MinhyukHong">
-          <img src="/static/github.png" width="150" height="50" />
+          <img
+            src="/static/github.png"
+            width="60"
+            height="60"
+            style={{
+              background: "none",
+              border: "none",
+              boxShadow: "none",
+            }}
+          />
         </a>
         <ul>
           {Object.entries(links).map(([text, link]) => (
