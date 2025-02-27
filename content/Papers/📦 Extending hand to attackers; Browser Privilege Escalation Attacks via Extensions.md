@@ -169,7 +169,7 @@
 
 - 렌더링 엔진의 복잡성 증가로 취약점이 증가하며, 브라우저는 사이트 격리 등의 방어 기법을 도입하여 렌더러 공격자의 권한을 제한한다.
 - 그 결과, *익스텐션의 보안이 주요 방어선이 되었다.*
-- PoLP 원칙에 따르면, Content Script는 낮은 권한을 가지므로 침해되더라도 추가적인 권한을 얻을 수 없어서 한다.
+- PoLP 원칙에 따르면, Content Script는 낮은 권한을 가지므로 침해되더라도 추가적인 권한을 얻을 수 없어야 한다.
 - 하지만, 확장 프로그램 개발자가 특정 보안 요구 사항을 지키지 않으면 PoLP가 무력화되어 권한 상승 공격이 발생한다.
 - 많은 확장 프로그램 개발자가 보안 전문가가 아니며, 보안 요구 사항을 준수할 동기가 부족하다.
 
@@ -293,7 +293,7 @@ readMemory();
 
 1. **Ad Blockers** (광고 차단기 익스텐션)
 	- 사용자가 필터 규칙을 추가할 수 있으며, 일부 규칙은 사이트에 스크립트를 삽입하여 광고를 제거한다.
-	- e.g. `example.com#$#alert(document.domain)`->`example.com` 에서 `alert(document.domain` 실행.
+	- e.g. `example.com#$#alert(document.domain)`->`example.com` 에서 `alert(document.domain)` 실행.
 	- 공격자가 사용자 요청을 위조하여 악성 필터를 추가하면, 임의 코드를 실행할 수 있다.
 	- 6개의 광고 차단 익스텐션이 이러한 설정을 Extension Storage에 저장하여 공격자가 변경 가능하다.
 
@@ -301,7 +301,7 @@ readMemory();
 	- 사용자가 특정 페이지에서 실행할 Userscript를 추가할 수 있다.
 	- 공격자가 요청을 위조하여 악성 Userscript를 추가하면, 원하는 웹사이트에서 악성 코드 실행이 가능하다.
 	- Tampermonkey는 Userscript를 Extension Storage에 저장하여, 공격자가 직접 수정할 수 있게 한다.
-	- Userscript가 확장 API를 호출할 수도 잇어, 공격자가 API 요청을 위조할 수 있게 한다.
+	- Userscript가 확장 API를 호출할 수도 있어, 공격자가 API 요청을 위조할 수 있게 한다.
 
 3. **Google Translate**
 	- 페이지 번역을 위해 페이지에 스크립트를 삽입한다.
@@ -326,7 +326,7 @@ readMemory();
 	- 저장된 웹사이트 로그인 정보를 제공한다.
 	- 로그인 페이지 방문 시, Content Script가 Extension Page에 저장된 비밀번호를 요청한다.
 	- LastPass 및 Bitwarden에서는 공격자가 사이트 URL을 위조하여 해당 사이트의 비밀번호 탈취가 가능하다.
-	- 6개의 비밀번호 관리자를 추가 분석한 결과, 모든 익스텐션에서 비밀번호 탈취 가능하다.
+	- 6개의 비밀번호 관리자를 추가 분석한 결과, 모든 익스텐션에서 비밀번호 탈취가 가능하다.
 	- 4개의 익스텐션은 암호화 키도 Extensions Storage에 저장하여 공격자가 접근 가능하다.
 
 3. **Cryptocurrency Wallets** (암호화폐 지갑)
@@ -343,8 +343,8 @@ readMemory();
 ---
 ## 5. Design of FISTBUMP
 
-- 현재 익스텐션 아키텍처는 렌더러 공격자(AttackerRW, AttackerR)에 의해 Content Script가 공격당한 가능성이 있다.
-- 기존 아키텍처는 확장 페이지와 Content Script 간의 권한을 올바르게 분리하는 것이 어렵고, 보안 요구 사항이 자주 위반되어 권한 상승 공격이 발생한다.
+- 현재 익스텐션 아키텍처는 렌더러 공격자(AttackerRW, AttackerR)에 의해 Content Script가 공격당할 가능성이 있다.
+- 기존 아키텍처는 확장 페이지와 Content Script 간의 권한을 ==올바르게 분리하는 것이 어렵고==, 보안 요구 사항이 자주 위반되어 권한 상승 공격이 발생한다.
 - FISTBUMP는 Content Script를 강력한 프로세스 격리를 통해 보호하는 새로운 익스텐션 아키텍처이다.
 
 
@@ -365,22 +365,22 @@ readMemory();
 ### 5.1 Strong Process Isolation for Content Script
 
 **<설계 목표 1>**
-Content Script를 렌더러 프로세스로부터 강력하게 격리
+==Content Script를 렌더러 프로세스로부터 강력하게 격리==
 - 기존 익스텐션 아키텍처에서는 Content Script가 렌더러 프로세스에서 실행되어, AttackerRW 및 AttackerR이 Content Script를 직접 조작 가능하다.
 - FISTBUMP는 Content Script를 확장 프로세스로 이동하여 프로세스 격리를 강화한다.
 	- 확장 페이지가 실행되는 프로세스에서 Content Script를 전용 워커(worker) 스레드로 실행한다.
 	- Content Script는 여전히 제한된 권한을 가지며, 실행 환경(Isolated World)에서 보호된다.
 	- CSP(Content Security Policy)를 적용하여 원격 코드 실행을 방지한다.
 - 보안 효과
-	- Content Script가 더 이상 렌더러 프로세스에 존재하지 않으므로 AttackerR 및 AttackerRW가 Content Script를 조작할 수 없다.
-	- 렌더러 프로세스는 Content Script의 확장 메시지 전송 및 저장소 접근 권한을 잃어, PoLP를 준수하게 된다.
+	- Content Script가 ==더 이상 렌더러 프로세스에 존재하지 않으므로== AttackerR 및 AttackerRW가 Content Script를 조작할 수 없다.
+	- 렌더러 프로세스는 Content Script의 확장 메시지 전송 및 저장소 접근 권한을 잃어, ==PoLP를 준수하게 된다==.
 
 
 ### 5.2 Transparent Isolation with DOM Proxy
 
 **<설계 목표 2>**
 기존 익스텐션과의 호환성을 유지하면서 투명한 격리 제공
-- 격리를 강화하면 기존 아키텍처가 변경될 가능성이 높아, FISTBUMP는 최소한의 변경으로 호환성을 유지한다.
+- 격리를 강화하면 기존 아키텍처가 변경될 가능성이 높아, FISTBUMP는 ==최소한의 변경으로 호환성을 유지==한다.
 - 문제점
 	- 기존 브라우저 아키텍처에서는 Content Script, DOM, 페이지 스크립트가 같은 렌더러 프로세스에서 실행되어 직접 DOM 접근이 가능하다.
 	- 그러나 FISTBUMP에서는 Content Script가 확장 프로세스로 이동하여 렌더러 프로세스의 DOM에 직접 접근이 불가하다.
@@ -388,12 +388,12 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 ![Figure 5](ExtendingHandToAttackers_5.png)
 
 - 해결책: DOMProxy 도입
-	- Content Script가 직접 DOM에 접근하는 대신, DOMProxy가 요청을 중계한다.
-	- IPC(Message Passing)를 통해 Content Script 워커와 DOMProxy가 DOM 연산을 주고받는다.
+	- Content Script가 직접 DOM에 접근하는 대신, ==DOMProxy가 요청을 중계==한다.
+	- ==IPC(Message Passing)를 통해 Content Script 워커와 DOMProxy가 DOM 연산을 주고받는다.==
 	- Content Script가 DOM 객체를 참조할 경우:
 		1. DOMProxy가 참조 객체를 생성하고 ID를 반환한다.
 		2. Content Script 워커는 해당 ID를 이용해 가상 객체(Delegate Object)를 생성한다.
-        3. 모든 DOM 연산은 DOMProxy를 통해 수행된다.
+        1. ==모든 DOM 연산은 DOMProxy를 통해 수행된다.==
     - DOM 이벤트 리스너 등록도 프록시 방식으로 구현
         1. Content Script에서 이벤트 리스너를 등록하면, DOMProxy가 대응하는 이벤트 리스너를 렌더러 프로세스에 등록한다.
         2. 이벤트가 발생하면 DOMProxy가 콘텐츠 스크립트 워커로 전달한다.
@@ -413,7 +413,7 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 
 - 기존 브라우저 아키텍처에서는 확장 API 호출 시 IPC를 사용 → 프로세스 간 메시지 전달이 필요하다.
 - FISTBUMP는 Content Script와 확장 페이지가 같은 프로세스에서 실행 → IPC가 필요 없다.
-- Content Script에서 API를 호출하면, Content Script 워커가 직접 확장 페이지로 전달 → 성능을 향상한다.
+- Content Script에서 API를 호출하면, Content Script 워커가 직접 확장 페이지로 전달 → ==성능을 향상한다.==
 
 
 ### 5.3 Optimizing Performance of DOM Proxy
@@ -425,7 +425,7 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 
 1. 메모리 관리 (Memory Management)
 - 문제점: DOMProxy가 생성한 참조 객체가 Content Script에서 더 이상 사용되지 않더라도, 남아 있을 경우 Memory leak 발생이 가능하다.
-- 해결책: Content Script 워커에서 delegate 객체가 가비지 컬렉션(GC)되면, DOMProxy에서도 참조 객체를 자동 삭제한다.
+- *해결책: Content Script 워커에서 delegate 객체가 가비지 컬렉션(GC)되면, DOMProxy에서도 참조 객체를 자동 삭제한다.*
 
 2. 배치 처리 및 캐시 (Batch Processing and Cache)
 - 문제점: 각 DOM 연산마다 개별 IPC 요청이 발생하면 성능이 저하된다.
@@ -451,7 +451,7 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 **호환성 및 확장 가능성**
 - 표준 Web API 및 JavaScript(ECMAScript) 기능을 사용하여 구현되어, 최신 Firefox 및 Safari에서도 호환이 가능하다.
 - 기존 익스텐션에 쉽게 적용 가능하다 (단, `document_start` 을 사용하는 Content Script는 브라우저 측 수정 필요).
-- 브라우저 측 변경이 적으므로, 다른 브라우저에서도 유사한 방식으로 적용 가능하다.
+- ==브라우저 측 변경이 적기 때문에==, 다른 브라우저에서도 유사한 방식으로 적용 가능하다.
 
 ---
 ## 7. Evaluation
@@ -495,12 +495,12 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 ### 7.2 Backward Compatibility
 
 ✅ FISTBUMP는 기존 익스텐션과의 호환성을 유지한다.
-- Chromium 유닛 테스트(75개 API 테스트)를 수행하여 모든 테스트가 통과했다. 이는 Content Script API가 올바르게 동작하며, 기존 익스텐션과 호환됨을 검증한다.
+- Chromium 유닛 테스트(75개 API 테스트)를 수행하여 모든 테스트가 통과했다. 이는 Content Script API가 올바르게 동작하며, ==기존 익스텐션과 호환됨을 검증한다==.
 
 **Limitation**
 - JavaScript 이벤트 루프와 DOMProxy 간의 메시지 처리 방식 차이
 	- 기존: JavaScript 이벤트 루프는 각 메시지를 순차적으로 실행한다(한 메시지가 실행 완료되기 전가지 다른 메시지 실행 불가).
-	- FISTBUMP: DOMProxy를 통한 메시지는 별도로 처리되어 이벤트 핸들러가 코드 실행 중간에 개입 가능하다.
+	- FISTBUMP: DOMProxy를 통한 메시지는 ==별도로 처리되어== 이벤트 핸들러가 코드 실행 중간에 개입 가능하다.
 	- 테스트 결과, 기존 익스텐션의 동작에는 영향이 없었다.
 	- 일관성 보장을 위해 DOMProxy를 동기적(Synchronous)으로 구현할 수도 있다.
 
@@ -519,10 +519,10 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 | 확장 저장소 접근<br>(storage.get/set) | 0 ns    | 9% 성능 저하         | Content Script가 Background Page 경유 필요 |
 
 **메모리 사용량 분석**
-✅ FISTBUMP 적용 시 약 3.4MB의 추가 메모리 사용이 발생한다.
+✅ FISTBUMP 적용 시 약 3.4MB의 ==추가 메모리 사용==이 발생한다.
 - DOMProxy 및 Content Script 워커가 3.4MB의 추가 메모리를 사용한다.
 - 각 Delegate Object 및 참조 생성 시 1.2KB 추가 메모리를 사용한다.
-- Chrome DevTools로 확인한 결과, 사용되지 않는 Delegate Object는 정상적으로 Garbage Collection된다. -> Memory leak이 발생하지 않는다.
+- Chrome DevTools로 확인한 결과, 사용되지 않는 Delegate Object는 정상적으로 Garbage Collection된다. -> ==Memory leak이 발생하지 않는다.==
 
 ---
 ## 8. Discussion
@@ -534,7 +534,7 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 
 2. 보안 취약점 공개 및 벤더 대응
 	- 대부분은 익스텐션 개발자는 취약점을 수정하지 않기 때문에, Chrome Web Store에 취약점을 보고하여 관리자가 조치하도록 유도한다.
-	- Chromium 팀은 차기 확장 API에서 보안 강화를 논의 중이지만, *FISTBUMP보다 제한적* 이다.
+	- Chromium 팀은 차기 확장 API에서 보안 강화를 논의 중이지만, ==FISTBUMP보다 제한적== 이다.
 
 3. 익스텐션 대규모 분석 필요
 	- 18,432개(약 15%)의 익스텐션이 모든 페이지에 Content Script를 삽입하고, 메시징/저장소 API를 사용한다.
@@ -567,15 +567,15 @@ Content Script를 렌더러 프로세스로부터 강력하게 격리
 	- FISTBUMP 적용 익스텐션도 핑거프린팅 공격에 취약할 가능성이 있어, 추가 연구가 필요하다.
 
 4. PoLP의 중요성
-	- 웹 브라우저는 운영체제와 유사한 구조이기 때문에, 익스텐션을 특권 애플리케이션으로 간주해야 한다.
+	- 웹 브라우저는 ==운영체제와 유사한 구조이기 때문에==, 익스텐션을 특권 애플리케이션으로 간주해야 한다.
 	- FISTBUMP는 PoLP 원칙을 효과적으로 적용하는 새로운 익스텐션 보안 모델을 제안한다.
 
 
 ✅ 핵심 결론: 기존 연구는 PoLP 기반 보안을 강조했지만, 현실적으로 잘 지켜지지 않는다.
-✅ FISTBUMP는 기존 연구의 한계를 해결하고, 확장 프로그램 보안을 아키텍처 차원에서 강화한다.
+✅ FISTBUMP는 기존 연구의 한계를 해결하고, 확장 프로그램 보안을 ==아키텍처 차원에서 강화한다==.
 
 📌 **추가 검토 사항:**
-- FISTBUMP가 기존 Manifest V3보다 효과적인지 비교 연구가 필요하다.
+- *FISTBUMP가 기존 Manifest V3보다 효과적인지 비교 연구가 필요하다.*
 - 브라우저 벤더가 FISTBUMP를 채택할 가능성을 분석한다.
 - 확장 프로그램 핑거프린팅 방어 기법 연구가 필요하다.
 
