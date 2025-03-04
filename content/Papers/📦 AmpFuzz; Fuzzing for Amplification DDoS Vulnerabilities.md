@@ -1,10 +1,15 @@
-
+---
+review date: <% tp.file.creation_date("YYYY-MM-DD") %>
+reading: 
+done: 
+summary:
+---
 ## Abstract
 
 - 문제점
 	- 증폭 DDoS 공격은 심각한 위협이며 최근 Tbps급 규모까지 증가했다.
-	- 기존 증폭 취약점 발견 방법은 수동 분석 또는 사후 분석에 의존한다.
-- 해결책: **AmpFuzz**
+	- 기존 증폭 취약점 발견 방®법은 수동 분석 또는 사후 분석에 의존한다.
+- 해결책: **AmpFuzzrr**
 	- UDP 서비스에서 *자동으로* 증폭 벡터를 탕ㅁ지하는 첫 체계적인 방법이다.
 	- 프로토콜 독립적(protocol-agnostic)으로, 특정 프로토콜에 한정되지 않고 다양한 UDP 서비스 분석이 가능하다.
 	- UDP-aware 퍼징 기법을 적용하여 퍼징 성능을 최적화하고 탐지율을 향상한다.
