@@ -1,6 +1,12 @@
+---
+review date: 2025-02-17
+reading: true
+done: true
+summary:
+---
 
 ## Abstract
-
+---
 - 브라우저와 공격 타겟
 	- 웹 브라우저는 공격자들이 사용자로부터 보안 및 개인정보 데이터를 탈취할 수 있는 매력적인 타겟이다(e.g. 온라인 뱅킹 정보, 소셜 네트워크 자격 증명 etc).
 - 브라우저 보안 접근 방식
@@ -18,9 +24,8 @@
 	- PoLP 강화: 웹페이지와 콘텐츠 스크립트 간 강력한 프로세스 격리로 취약점을 제거한다.
 	- 하위 호환성: 기존 확장 프로그램의 수정 없이 실행 가능하다.
 
----
 ## 1. Introduction
-
+---
 - 브라우저 보안 개요
 	- 브라우저는 인터넷과 사용자를 연결하는 주요 공격 대상이며, covid-19 이후 온라인 활동 증가로 더욱 표적이 되었다.
 	- 공격자가 악성 사이트로 유도하면 브라우저의 취약점을 악용해 온라인 뱅킹, 소셜 네트워크 계정 등 보안 데이터 탈취가 가능하다.
@@ -72,10 +77,9 @@
 > 3. 새로운 보안 아키텍처 FISTBUMP 제안 및 구현
 > 	- 강력한 프로세스 격리를 통해 모든 취약점을 제거하는 Security-by-default architecture를 구축한다.
 
----
 ## 2. Background
 
-
+---
 ### 2.1 Web Browser Security
 
 **브라우저의 PoLP 적용 및 multi-process architecture**
@@ -164,9 +168,8 @@
 ![Figure 2](ExtendingHandToAttackers_2.png)
 ![Figure 3](ExtendingHandToAttackers_3.png)
 
----
 ## 3. Security Requirements to Protect Against Renderer Attackers
-
+---
 - 렌더링 엔진의 복잡성 증가로 취약점이 증가하며, 브라우저는 사이트 격리 등의 방어 기법을 도입하여 렌더러 공격자의 권한을 제한한다.
 - 그 결과, *익스텐션의 보안이 주요 방어선이 되었다.*
 - PoLP 원칙에 따르면, Content Script는 낮은 권한을 가지므로 침해되더라도 추가적인 권한을 얻을 수 없어야 한다.
@@ -249,9 +252,8 @@ readMemory();
 - 실제 공격 예시
 	- Background Page에서 Content Script로 민감한 데이터 전송 -> AttackerR이 메모리에서 해당 데이터를 읽는다.
 
----
 ## 4. Privilege Escalation Attacks via Extensions
-
+---
 - 익스텐션의 보안 요구 사항을 검토한 결과, 많은 익스텐션이 이를 준수하지 않아 권한 상승 공격을 가능하게 한다.
 - 3가지 주요 공격 기법을 개발하여 동일 출처 정책(SOP)을 우회하고, 다른 사이트에서 스크립트를 실행하는 UXSS 공격 수행이 가능하다.
 - UXSS 공격을 통해 공격자는 피해자의 이메일을 읽거나, 은행 이체 등 피해자를 대신하여 조작한다.
@@ -340,9 +342,8 @@ readMemory();
 
 ![Figure 4](ExtendingHandToAttackers_4.png)
 
----
 ## 5. Design of FISTBUMP
-
+---
 - 현재 익스텐션 아키텍처는 렌더러 공격자(AttackerRW, AttackerR)에 의해 Content Script가 공격당할 가능성이 있다.
 - 기존 아키텍처는 확장 페이지와 Content Script 간의 권한을 ==올바르게 분리하는 것이 어렵고==, 보안 요구 사항이 자주 위반되어 권한 상승 공격이 발생한다.
 - FISTBUMP는 Content Script를 강력한 프로세스 격리를 통해 보호하는 새로운 익스텐션 아키텍처이다.
@@ -434,9 +435,8 @@ readMemory();
     - 가상 DOM을 유지하여 독립적인 DOM 조작은 콘텐츠 스크립트 내에서 수행한다.
     - 불변(immutable) 속성 또는 검증이 쉬운 속성을 캐싱하여 성능을 최적화한다.
 
----
 ## 6. Implementation
-
+---
 **개발 환경 및 구성 요소**
 - FISTBUMP는 Chromium 105 기반으로 구현되었다.
 - 두 가지 주요 구성 요소로 이루어졌다.
@@ -453,9 +453,8 @@ readMemory();
 - 기존 익스텐션에 쉽게 적용 가능하다 (단, `document_start` 을 사용하는 Content Script는 브라우저 측 수정 필요).
 - ==브라우저 측 변경이 적기 때문에==, 다른 브라우저에서도 유사한 방식으로 적용 가능하다.
 
----
 ## 7. Evaluation
-
+---
 - 실험 환경
 	- CPU: Intel i7-10700K, RAM: 32GB
 	- Chromium 버전: 101.0.4951.41
@@ -524,10 +523,8 @@ readMemory();
 - 각 Delegate Object 및 참조 생성 시 1.2KB 추가 메모리를 사용한다.
 - Chrome DevTools로 확인한 결과, 사용되지 않는 Delegate Object는 정상적으로 Garbage Collection된다. -> ==Memory leak이 발생하지 않는다.==
 
----
 ## 8. Discussion
-
-
+---
 1. 브라우저 자체의 보안 취약점 발견
 	- Chrome, Firefox, Safari에서 AttackerRW가 확장 메시지를 위조하거나 저장소에 접근 가능한 취약점을 발견했다.
 	- Chrome과 Safari는 일부 패치가 완료되었지만, Firefox는 취약점을 확인했지만 아직 수정되지 않았다.
@@ -548,9 +545,8 @@ readMemory();
 	- DOMProxy가 JavaScript 엔진 및 렌더링 엔진과 연동되면 성능 향상이 가능하다.
 	- 브라우저 수준에서 DOMProxy 최적화를 지원하면 효과적일 것이다.
 
----
 ## 9. Related Work
-
+---
 1. 익스텐션 보안 연구 방향
 	- 악성 익스텐션 차단, 취약한 익스텐션을 악용하는 웹페이지로부터 보호.
 	- 두 목표는 별개지만, 악성 익스텐션을 제한하면 취약한 익스텐션도 보호할 수 있으므로, FISTBUMP의 접근 방식과 유사하다.
@@ -579,9 +575,8 @@ readMemory();
 - 브라우저 벤더가 FISTBUMP를 채택할 가능성을 분석한다.
 - 확장 프로그램 핑거프린팅 방어 기법 연구가 필요하다.
 
----
 ## 10. Conclusion
-
+---
 - 현재 익스텐션 아키텍처는 개발자에게 높은 보안 요구 사항을 부과하지만, 현실적으로 지키기 어렵다.
 - 인기 익스텐션 40개를 분석한 결과, 총 59개의 보안 취약점을 발견했고, PoLP 원칙이 제대로 적용되지 않았다.
 - FISTBUMP는 이러한 취약점을 근본적으로 제거하는 새로운 익스텐션 아키텍처를 제안한다.

@@ -109,3 +109,45 @@ int main(void) {
 }
 ```
 
+위 소스코드는 `vector` 라이브러리와 `pair` 라이브러리를 이용해 Short Coding 한 결과이다.
+ 
+> `vector STL` : 단순한 배열을 사용하기 쉽게 개편한 자료구조.원소를 선택적으로 삽입(push) 및 삭제(pop)
+> `pair STL` : 한 쌍의 데이터를 처리할 수 있도록 해주는 자료구조.
+
+
+다음은 변수가 3개일 때, '두 개'의 변수를 기준으로 정렬하는 방법이다.
+
+> 학생을 나타낼 수 있는 정보가 이름, 성적, 생년월일일 때 학생을 성적 순서대로 나열한다. 다만 성적이 동일한 경우, 나이가 어리면 우선순위가 높다.
+
+```
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+bool compare(pair<string, pair<int, int> > a,
+			 pair<string, pair<int, int> > b) {
+	if(a.second.first == b.second.first) {
+		return a.second.second > b.second.second;	
+	}
+	else {
+		return a.second.first > b.second.first;
+	}
+}
+
+int main(void) {
+	vector<pair<string, pair<int, int> > > v;
+	v.push_back(pair<string, pair<int, int> >("John", pair<int, int>(90, 19961222)));
+	v.push_back(pair<string, pair<int, int> >("Jack", pair<int, int>(97, 19930518)));
+	v.push_back(pair<string, pair<int, int> >("Min", pair<int, int>(95, 19930203)));
+	v.push_back(pair<string, pair<int, int> >("Peter", pair<int, int>(90, 19921207)));
+	v.push_back(pair<string, pair<int, int> >("Harry", pair<int, int>(88, 19900302)));
+	
+	sort(v.begin(), v.end(), compare);
+	for(int i = 0; i < v.size(); i++) {
+		cout << v[i].first << ' ';
+	}
+	return 0;
+}
+```
