@@ -11,9 +11,10 @@ export default ((opts?: Options) => {
     const links = opts?.links ?? []
     return (
       <footer class={`${displayClass ?? ""}`}>
+        {/* GitHub 아이콘 */}
         <a href="https://github.com/MinhyukHong">
           <img
-            src="/static/github.png"
+            src="/static/GitHub_icon.png"
             width="50"
             height="50"
             style={{
@@ -26,6 +27,24 @@ export default ((opts?: Options) => {
             }}
           />
         </a>
+
+        {/* LinkedIn 아이콘 */}
+        <a href="https://www.linkedin.com/in/minhyukhong/">
+          <img
+            src="/static/LinkedIn_icon.png"
+            width="50"
+            height="50"
+            style={{
+              background: "transparent !important",
+              border: "none !important",
+              boxShadow: "none !important",
+              display: "inline-block",
+              padding: "0",
+              margin: "0",
+            }}
+          />
+        </a>
+
         <ul>
           {Object.entries(links).map(([text, link]) => (
             <li>
