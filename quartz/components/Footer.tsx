@@ -23,7 +23,7 @@ export default ((opts?: Options) => {
               boxShadow: "none !important",
               display: "inline-block",
               padding: "0",
-              margin: "0",
+              margin: "0 10px 0 0",
             }}
           />
         </a>
