@@ -171,7 +171,7 @@ python torcrawl.py -u http://exhkwx5ube5io7bxa2thitfh5lgrkivirb2d7biqx3hfrwfd6eg
 출력 결과는 다음과 같다.
 - b'<!DOCTYPE html>... ← 이건 Python이 바이트 문자열(bytes) 형태로 HTML을 출력한 것
 - 실제 내용은 사이트의 `<html>`과 `</html>`에 전체 문서가 포함되어 있다.
-- 제목 *'Cryptocurrency news and prices - CryptoNews'*도 정상적으로 파싱되었다.
+- 제목 *Cryptocurrency news and prices - CryptoNews*도 정상적으로 파싱되었다.
 - CSS, 이미지 링크, 내비게이션 바 등도 모두 포함되었다.
 
 이후에 할 수 있는 행위를 생각해보면, 바이트 문자열을 일반 문자열로 디코딩하는 것이다. 현재는 `b'...'` 형태로 나오기 때문에 출력 코드를 아래처럼 바꾸면 더 읽기 좋을 것 같다.
