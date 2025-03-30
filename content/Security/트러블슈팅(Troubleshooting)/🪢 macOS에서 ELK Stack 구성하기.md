@@ -99,10 +99,10 @@ $ bin/kibana
 `http://localhost:5601/?code=084162` 주소로 브라우저에서 접속하면 Kibana의 초기 설정 화면이 뜨고, Elasticsearch와의 연결 및 기본 설정을 하게 된다.
 ![Figure 13](ELKDownload_13.png)
 위 화면에서는 token을 요청하고 있다.
-이 부분이 버전 7과 달라진 부분인데, Elasticsearch와 연동하는 부분에서 보안이 더 강화되었다. 이전에 Elasticsearch 설치 부분에서 나타났던 로그 중에서 아래 화면처럼 *Configure Kibana to use this cluster* 부분에 있는 token을 복사하여 붙여넣어준다.
+이 부분이 버전 7과 달라진 부분인데, Elasticsearch와 연동하는 부분에서 보안이 더 강화되었다. 이전에 Elasticsearch 설치 부분에서 나타났던 로그 중에서 아래 화면처럼 Configure Kibana to use this cluster 부분에 있는 token을 복사하여 붙여넣어준다.
 참고로 30분 한정 유효한 토큰이므로 Elasticsearch 최초 실행 30분 내에 Kibana를 실행하여 위 텍스트 박스에 적용하면 된다.
 ![Figure 14](ELKDownload_14.png)
-token을 입력하고 *Configure Elastic*을 누르면 셋업이 진행된다.
+token을 입력하고 Configure Elastic을 누르면 셋업이 진행된다.
 ![Figure 15](ELKDownload_15.png)
 셋업은 최초 1회만 진행되며, 이후 로그인 페이지가 나오고 앞으로 키바나를 실행시키면 아래와 같은 로그인 페이지가 나타날 것이다. 미리 디폴트로 생성한 Elastic 계정으로 로그인하면 된다.
 ![Figure 16](ELKDownload_16.png)
