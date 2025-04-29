@@ -42,7 +42,7 @@ Suspicious permissions를 가진 익스텐션을 판단하기 위해서는 `mani
 | `cookies`            | 웹사이트 쿠키 읽기 및 변경       | 세션 탈취, 계정 하이재킹 가능            |
 | `bookmarks`          | 북마크 읽기 및 수정           | 악성 사이트 북마크 삽입, 사용자 관심사 분석 가능 |
 
-### Analysis Work-flow
+### Analysis Workflow
 ---
 > **Random Sampling**
 
