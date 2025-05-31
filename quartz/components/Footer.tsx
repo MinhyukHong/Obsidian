@@ -12,7 +12,7 @@ export default ((opts?: Options) => {
     return (
       <footer class={`${displayClass ?? ""}`}>
         {/* GitHub 아이콘 */}
-        <a href="https://github.com/MinhyukHong">
+        {/* <a href="https://github.com/MinhyukHong">
           <img
             src="/static/GitHub_icon.png"
             width="50"
@@ -26,10 +26,10 @@ export default ((opts?: Options) => {
               margin: "0 10px 0 0",
             }}
           />
-        </a>
+        </a> */}
 
         {/* LinkedIn 아이콘 */}
-        <a href="https://www.linkedin.com/in/minhyukhong/">
+        {/* <a href="https://www.linkedin.com/in/minhyukhong/">
           <img
             src="/static/LinkedIn_icon.png"
             width="50"
@@ -43,7 +43,7 @@ export default ((opts?: Options) => {
               margin: "0",
             }}
           />
-        </a>
+        </a> */}
 
         <ul>
           {Object.entries(links).map(([text, link]) => (
