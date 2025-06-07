@@ -3,7 +3,7 @@
 익스텐션 개발에서의 Security Requirements(보안 요구 사항) 준수는 개발자에게 달려 있으며, 이와 같이 익스텐션 역할에 맞지 않게 월권하는 행위는 PoLP에 어긋나게 된다.
 
 > *레퍼런스 :*
-> [[📦 Extending hand to attackers; Browser Privilege Escalation Attacks via Extensions]]
+> [[Extending hand to attackers; Browser Privilege Escalation Attacks via Extensions]]
 
 
 > **Over-permissioned**
