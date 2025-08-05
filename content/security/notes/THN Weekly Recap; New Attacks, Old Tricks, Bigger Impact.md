@@ -8,6 +8,7 @@ summary:
 ---
 [The Hacker News](https://thehackernews.com/2025/03/thn-weekly-recap-new-attacks-old-tricks.html)
 
+
 ## Contents
 ---
 ![Figure 1](THNWeeklyRecap_1.png)
@@ -34,6 +35,7 @@ summary:
 - Apple, 영국 정부의 iCloud 백도어 요구에 반발 → 법적 대응 중.
 - FBI, 우편을 이용한 가짜 랜섬웨어 협박 경고 → 기업 임원 대상 피싱 증가.
 - Cobalt Strike 악용 80% 감소 → Microsoft 등과의 협력으로 공격 감소.
+
 
 ## Discussion
 ---

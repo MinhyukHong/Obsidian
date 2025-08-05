@@ -8,6 +8,7 @@ summary:
 ---
 [The Hacker News](https://thehackernews.com/2025/03/outsmarting-cyber-threats-with-attack.html)
 
+
 ## Contents
 ---
 ![Figure 1](OutsmartingCyberThreats_1.png)
@@ -34,6 +35,7 @@ summary:
 - 기존의 침해 사고 후 대응(Reactive Security)에서 예측 기반 보안(Proactive Security)으로 전환.
 - 위협 인텔리전스 통합을 통해 실시간 취약점 및 공격 기법을 반영함으로써 변화하는 환경에 유연하게 대응 가능.
 - 보안 팀이 기존 취약점 관리 방식에서 벗어나, 실질적 위험 요소를 제거하는 전략적 접근 방식을 취할 수 있도록 지원.
+
 
 ## Discussion
 ---

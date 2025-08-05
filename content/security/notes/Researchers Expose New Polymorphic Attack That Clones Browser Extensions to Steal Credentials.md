@@ -8,6 +8,7 @@ summary:
 ---
 [The Hacker News](https://thehackernews.com/2025/03/researchers-expose-new-polymorphic.html)
 
+
 ## Contents
 ---
 ![Figure1](ResearchersExposeNewPolymorphicAttack_1.png)
@@ -44,6 +45,7 @@ summary:
 - 기업 및 개발자 차원에서의 대응
 	- 브라우저 개발사(Google, Microsoft 등)는 `chrome.management` API 사용을 제한하거나 특정 보안 경고 기능을 추가해야 한다.
 	- 웹 스토어 플랫폼에서는 확장 프로그램의 비정상적인 동작을 감지하는 AI 기반 탐지 기능을 강화해야 한다.
+
 
 ## Discussion
 ---

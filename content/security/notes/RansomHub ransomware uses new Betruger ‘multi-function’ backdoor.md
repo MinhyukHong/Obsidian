@@ -7,6 +7,8 @@ summary:
 ## Reference
 ---
 [BleepingComputer](https://www.bleepingcomputer.com/news/security/ransomhub-ransomware-uses-new-betruger-multi-function-backdoor/)
+
+
 ## Contents
 ---
 **Betruger 백도어 등장**
@@ -42,6 +44,7 @@ summary:
 **FBI 발표**
 - RansomHub 소속 해커들은 미국의 주요 인프라 부문을 포함하여 200개 이상의 피해 조직을 해킹했다.
 - 공격 대상: 정부, 중요 인프라, 의료 기관, etc.
+
 
 ## Discussion
 ---
