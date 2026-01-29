@@ -141,13 +141,103 @@ summary:
 		- 이는 공격자가 Node.js에서 확장 프로그램이 수행하는 작업량을 제어할 수 있는 경우 심각한 가용성 문제가 발생된다는 것을 말한다.
 
 - **Low-level issues**
+	- 실망스럽게도 N-API에는 전형적인(textbook) 버퍼 오버플로우를 이용하여 네이티브 확장에 정의된 지역 변수를 덮어쓸 수(overwrite) 있다.
+	- 또한 use-after-free($M_{14}$)도 대부분 언어에서 허용되지만 Ruby는 해체된 메모리 영역을 null 바이트로 초기화시킨다(초기화되지 않은 메모리($M_9$)의 경우 유사한 동작 관찰).
+	- double free($M_{15}$)는 항상 코어 덤프를 트리거하며 형식 문자열 취약점($M_{17}$)은 일반적으로 컴파일러에 의해 방지된다.
+		- Node.js에서는 경고만 생성. 다른 언어에서는 컴파일 중단
+	- 어떤 API도 확장 프로그램 코드 자체에서 메모리 누수를 방지하거나 감지하기 위한 노력을 기울이지 않는다. ($M_{16}$)
 	- 
 ---
 
 
 ## 4. Methodology
 
-- 
+![Figure 2](BilingualProblems_F2.png)
+
+- 네이티브 확장이 웹 애플리케이션에 직접 통합될 수는 인지만, 먼저 확장 프로그램이 패키지 내부에 캡슐화되는 것이 일반적이라고 생각한다.
+- 본 연구에서는 네이티브 API 오용 취약점을 탐지하기 위한 두 레벨의 정적 분석을 제안한다.
+- Fig.2에서는 Node.js와 npm 분석 파이프라인을 나타낸다. 이는 다른 스크립트 언어와 그 생태계에도 적용 가능할 것이다.
+- package-level analysis: strong attacker model 하의 안전하지 않은 네이티브 확장으로 인해 발생하는 npm 취약 패키지를 탐지 👉🏻 intra-procedural analyses & cross-language analyses
+	- 언어 간 경계에서 C/C++과 JavaScript 코드에 대한 공통된 표현을 만듦
+	- 취약 패키지를 찾고, inter-procedural backward data-flow analysis를 통해 애플리케이션에 미치는 영향을 연구. (weak attacker model)
+---
+
+### 4.1 Packagae analysis
+
+- 대부분의 네이티브 확장의 사이즈가 작고 많은 오용 사례가 흐름 문제로 형식화되기 때문에, 본 연구에서는 ==data-flow graph==의 ==graph traversal problem==으로 오용을 탐지 한다.
+- 또한 스크립트 언어의 upper layer에서 어떻게 데이터가 다뤄지는지 정보가 없기 때문에 발생하는 FP를 방지하고자 두 언어 간의 data-flow를 합친다(unify).
+
+- **Intra-procedural analysis**
+	- 단일 함수 내부에서의 데이터 흐름을 분석하여 취약점을 찾는다.
+	- Data-flow graph 생성
+		- 분석의 첫 단계로 타겟 함수의 그래프를 생성
+		- 노드(Nodes, $N$): 프로그램의 구문(line)
+		- 엣지(Edges, $E$): 데이터의 명시적인 흐름
+	- 핵심 요소 정의
+		- $n_0$ (Root Node): 함수 정의 부분으로, 그래프 탐색의 시작점
+		- $S$ (Sink): 보안상 위험할 수 있는 지점(API 호출 등)
+		- $\bar{S}$ (Sanitizer): 데이터의 유효성을 검증하여 싱크로의 흐름을 안전하게 만드는 코드(e.g., 타입 체크)
+	- 취약점 판정 로직
+		- 루트에서 싱크로 가는 경로가 존재하고, 그 경로상에 새니타이저가 존재하지 않을 때 취약점으로 보고
+		- 경로 비민감성(Path-insensitive): 분석의 효율성을 위해 소스에서 싱크로 가는 경로 중 하나라도 새니타이저를 거친다면 해당 흐름은 안전한 것으로 간주하는 실용적인 접근을 취함
+
+- **Cross-language analysis**
+	- ![Figure 3](BilingualProblems_F3.png)
+	- ![Algorithm 2](BilingualProblems_A2.png)
+	- JavaScript와 C/C++ 사이의 경계를 넘나드는 데이터 흐름을 추적한다. 이는 JS 단에서 이미 검증(Sanitizer)된 데이터가 C/C++로 넘어갈 때 오탐(FP)을 줄이기 위함이다.
+	- 경계 식별 (Mapping)
+		- JS 함수명("foo")과 C/C++ 함수명(Foo)을 연결해주는 API 호출(**napi_define_properties**, **Set**)을 식별한다.
+	- 그래프 병합 (Merging)
+		- 매핑으로 확인한 후, JS 그래프의 네이티브 함수 호출 노드에서 C/C++ 함수 정의 노드로 엣지를 추가하여 두 그래프를 하나로 합친다.
+	- 통합 분석
+		- 합쳐진 그래프 상에서 다시 Intra-procedural analysis'를 수행한다.
+		- Ex. JS 쪽($JS3$)에서 타입 체크(Sanitizer)를 수행했다면, C/C++ 쪽($C7$)에 체크 로직이 없더라도 안전한 것으로 판단한다.
+
+- **Implementation details**
+	- 도구 활용
+		- C/C++: ==Joern==을 사용하여 Code Property Graph를 생성하고 ==dot 파일==로 추출한다.
+		- JavaScript: ==Google Closure Compiler==를 수정하여 내부 표현식에서 ==정의-사용(def-use) 쌍을 추출==한다.
+	- 분석 과정
+		1. JS 코드를 분석하여 C/C++ 함수가 호출되는 지점을 찾는다.
+		2. C/C++ 코드를 분석하여 바인딩 API를 통해 실제 호출되는 네이티브 함수를 찾는다.
+		3. 두 그래프를 병합하고 보안 위반을 탐지한다.
+		4. 패키지 당 분석 시간 제한(Budget)은 15분으로 설정한다.
+
+- **Security Modelling**
+	- 타겟 선정: 본 연구에서는 주로 누락된 타입 체크(Missing type checks, $M_3$, $M_4$)를 탐지하는 데 집중한다.
+	- 싱크 및 새니타이저 정의
+		- 싱크($S$): **napi_get_value_int32**와 같은 N-API 함수들.
+		- 새니타이저($\bar{S}$): **typeof**와 같은 언어별 관용적 타입 체크 구문이나 API.
+---
+
+### 4.2 Application analysis
+
+- 패키지 분석에서 발견된 취약점이 실제 Node.js 웹 애플이케이션에서 악용 가능한지(Exploitable) 확인하는 단계. 이를 위해 자체 프레임워크 개발: ==FLOWJS==
+
+- **Rule specification**
+	- 분석 도구(FLOWJS)가 무엇을 찾아야 하는지 정의
+		- 구성 요소: 관심 있는 API(함수 이름)와 파라미터, 그리고 오용 여부를 판단하는 콜백 함수(**IsMisuse**)로 구성
+		- Ex. **sqlite3** 패키지의 **run(query, data)** 함수에서 두 번째 인자(**data**)가 사용자 입력(네트워크 요청 등)으로부터 오염되었는지 확인하는 규칙을 작성
+
+- **Intra-procedural backward data-flow analysis** (==절차 내-==)
+	- 특정 API Sink에서부터 거꾸로 데이터를 추적하여 Source를 찾는다.
+	- 기반 기술: Google Closure Compiler의 내부 데이터 흐름 분석 프레임워크(Worklist 알고리즘)를 기반으로 한다.
+	- 분석 방식
+		- Def-Use 분석: 변수가 어디서 정의(Write)되었고 어디서 사용(Read)되었는지 관계를 추적
+		- 직접 영향(Direct influences) 중심: 외부 네트워크 입력과 같은 원시 입력(Raw inputs)을 찾는 것이 목표이므로, 복잡한 함수 호출을 건너뛰고 직접적인 데이터 정의만 추적하여 효율성을 높였다.
+
+- **Call-graph generation**
+	- 함수 간의 호출 관계(Caller-Callee)를 파악한다.
+	- 방식: Google Closure의 ==AST 순회 알고리즘==을 사용하여 함수 정의와 호출 노드를 찾고 관계를 수집한다.
+	- 한계: 이번 프로토타입에서는 함수 Aliasing(같은 함수를 다른 이름으로 부르는 것)은 처리하지 않았다.
+
+- **Inter-procedural backward data-flow analysis** (==절차 간-==)
+	- 단일 함수를 넘어, 함수 호출 체인을 따라 상위로 올라가며 데이터를 추적한다.
+	- 과정
+		1. 타겟 API가 호출된 모든 지점(Call sites)을 찾는다.
+		2. 해당 지점에서 '절차 내 분석'을 수행한다.
+		3. 호출자(Caller) 함수로 거슬러 올라가며 이 과정을 재귀적으로 반복한다.
+		4. 각 단계의 분석 결과를 종합(Stitch)하여 최종적으로 데이터가 어디서 왔는지(e.g., **req.body**) 판단하고, 규칙에 따라 오용 여부를 결정한다.
 ---
 
 ## Discussion
