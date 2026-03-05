@@ -93,7 +93,7 @@ summary:
 - 기존 네이티브 확장 API의 함정을 밝히기 위해 ==세 가지의 다른 스크립트 언어로 간단한 확장을 구축==한다. 이 확장들은 의도적으로 취약하며 API의 특이한 케이스를 강조하기 위함이다. (스크립트 언어에서 나오는 값에 대한 타입 검사 생략)
 - 그 후 취약한 확장의 메소드에 값(well-crafted)을 제공함으로써 스크립트 언어의 안전성을 무너뜨린다. 👉🏻 Strong attacker model
 	- API가 적극적으로 악용을 방지하려고 시도하는지, 만약 그렇다면 어떤 방식으로 시도하는지 관찰한다.
-- [[Finding and Preventing Bugs in JavaScript Bindings]] 연구 인용 + 네이티브 확장과 관련된 몇 가지 오용 사례도 추가(e.g., 지역 변수 read-write)
+- [[📦 Finding and Preventing Bugs in JavaScript Bindings]] 연구 인용 + 네이티브 확장과 관련된 몇 가지 오용 사례도 추가(e.g., 지역 변수 read-write)
 - Node.js 15.4.0, Python 3.8.5, Ruby 2.7.0p0
 	- Node.js - Nan & N-API
 

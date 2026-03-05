@@ -5,7 +5,7 @@ reading: true
 done: true
 summary: TARDIS는 CMS 생태계에서 사이버 공격을 식별하고 손상된 윈도우에 대해 수동 검증 대비 성능을 평가하기 위한 nightly 백업, snapshot, 공간 매트릭 기반 방법론이다.
 ---
-*Reference:* [[Mistrust Plugins You Must; A Large-Scale Study Of Malicious Plugins In WordPress Marketplaces]]
+*Reference:* [[📦 Mistrust Plugins You Must; A Large-Scale Study Of Malicious Plugins In WordPress Marketplaces]]
 
 ## Abstract
 
