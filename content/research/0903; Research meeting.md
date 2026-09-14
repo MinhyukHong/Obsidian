@@ -1,8 +1,8 @@
 ---
 Date: 2026-09-03
 topic:
-in progress: true
-done:
+in progress: false
+done: true
 summary:
 ---
 ## Milestones
